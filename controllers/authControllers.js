@@ -1,7 +1,6 @@
-// --------reg controller
+const { regServices, loginServices } = require("../services/authServices");
 
-const { regServices } = require("../services/authServices");
-
+// -------registration controller
 const regController = async (req, res) => {
   try {
     const { email, name, password } = req.body;
@@ -25,4 +24,26 @@ const regController = async (req, res) => {
   }
 };
 
-module.exports = { regController };
+// -------login controller
+
+const loginController = async (req, res) => {
+  try {
+    const result = await loginServices(req.body);
+    const { accessToken, refreshToken } = result;
+
+    // ----set token on cookies
+    res.cookie("acc_tkn", accessToken);
+
+    res.cookie("ref_tkn", refreshToken);
+
+    res.status(200).json({
+      success: true,
+      message: "Login successfull",
+      data: result,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { regController, loginController };
