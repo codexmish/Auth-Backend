@@ -1,9 +1,10 @@
-
+const userSchema = require("../models/userSchema");
+const bcrypt = require("bcrypt");
 const { isValidateEmail, isValidatePassword } = require("../helpers/utils");
+const envConfig = require("../helpers/processEnv");
 
 // -------registration services
 const regServices = async (email, name, password) => {
-
   const errors = {};
 
   // ---name validatine
@@ -27,10 +28,30 @@ const regServices = async (email, name, password) => {
 
   // --------sending errors
   if (Object.keys(errors).length > 0) {
-    return errors
+    return { errors: errors };
   }
-  return
 
+  // ---------checking if email already exist
+  const existemail = await userSchema.findOne({ email });
+
+  if (existemail) {
+    throw new Error("User already exist try another email");
+  }
+
+  // ----------password hashing
+  const hashedPassword = await bcrypt.hash(
+    password,
+    Number(envConfig.SALT_ROUND),
+  );
+
+  // -------creating user
+  const userData = await userSchema.create({
+    name,
+    email,
+    password: hashedPassword,
+  });
+
+  return { data: userData };
 };
 
 module.exports = { regServices };
