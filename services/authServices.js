@@ -1,3 +1,4 @@
+
 const { isValidateEmail, isValidatePassword } = require("../helpers/utils");
 
 // -------registration services
@@ -25,9 +26,10 @@ const regServices = async (email, name, password) => {
   }
 
   // --------sending errors
-  if (errors.length > 0) {
-    throw new Error({ errors });
+  if (Object.keys(errors).length > 0) {
+    return errors
   }
+  return
 
 };
 
